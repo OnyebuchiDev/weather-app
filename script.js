@@ -334,7 +334,7 @@ setInterval(updateLocalTime, 1000);
   locationButton.disabled = true;
 
   navigator.geolocation.getCurrentPosition(
-      async (position) => {
+    async (position) => {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
 
@@ -378,7 +378,6 @@ setInterval(updateLocalTime, 1000);
 
         locationButton.disabled = false;
       }
-    
     },
 
     (error) => {

@@ -22,6 +22,11 @@
       "> 
       <button class="search-button">Search</button>
       <button class="location-button">Use Current Location</button>
+      <button class="voice-button">
+  🎙️    Speak to Weather
+      </button>
+
+      <p class="voice-status" aria-live="polite"></p>
       <p class="error-message"
       role="alert"></p>
     </div>
@@ -42,8 +47,8 @@
         <p class="local-time"></p>
 
         <p class="current-weather-icon">⛅</p>
-        <p class="temperature">28°C</p>
-        <p class="weather-description">Partly Cloudy</p>
+        <p class="temperature"></p>
+        <p class="weather-description">Waiting for weather data...</p>
       </div>
 
       <div class="weather-details">
@@ -75,6 +80,7 @@
   <footer>© 2026 Onyebuchi Agwaraonye</footer>
 
   <script src="script.js"></script>
+  <script src="voice.js"></script>
   
 </body>
 </html>
