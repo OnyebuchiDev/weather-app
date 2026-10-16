@@ -13,6 +13,7 @@ const forecastList = document.querySelector('.forecast-list');
 const errorMessage =document.querySelector('.error-message');
 const unitToggle = document.querySelector('.unit-toggle');
 const currentWeatherIcon = document.querySelector('.current-weather-icon');
+const locationButton = document.querySelector('.location-button');
 
  let clockInterval;
  let temperatureUnit = 'C';
@@ -320,3 +321,85 @@ setInterval(updateLocalTime, 1000);
   searchButton.textContent = 'Search';
 }
  });
+
+
+ locationButton.addEventListener('click', () => {
+  if (!navigator.geolocation) {
+    errorMessage.textContent =
+      'Geolocation is not supported by your browser.';
+    return;
+  }
+
+  errorMessage.textContent = 'Getting your location...';
+  locationButton.disabled = true;
+
+  navigator.geolocation.getCurrentPosition(
+      async (position) => {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+        );
+
+        if (!response.ok) {
+          throw new Error('Could not identify your location.');
+        }
+
+        const data = await response.json();
+        const address = data.address || {};
+
+        const city =
+          address.city ||
+          address.town ||
+          address.village ||
+          address.municipality ||
+          address.suburb ||
+          address.county;
+
+        if (!city) {
+          throw new Error('Could not identify your city.');
+        }
+
+        // Put the detected city into the search input
+        cityInput.value = city;
+
+        // Let your existing search code load the weather
+        errorMessage.textContent = '';
+        locationButton.disabled = false;
+        searchButton.click();
+
+      } catch (error) {
+        console.error('Location error:', error);
+
+        errorMessage.textContent =
+          'Could not identify your location. Please search for your city instead.';
+
+        locationButton.disabled = false;
+      }
+    
+    },
+
+    (error) => {
+      if (error.code === 1) {
+        errorMessage.textContent =
+          'Location permission was denied.';
+      } else if (error.code === 2) {
+        errorMessage.textContent =
+          'Your location could not be determined.';
+      } else {
+        errorMessage.textContent =
+          'Location request timed out. Try again.';
+      }
+
+      locationButton.disabled = false;
+    },
+
+    {
+      enableHighAccuracy: false,
+      timeout: 10000,
+      maximumAge: 60000
+    }
+  );
+});
