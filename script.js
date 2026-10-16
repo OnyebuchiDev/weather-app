@@ -3,23 +3,41 @@ const searchButton =
 const cityInput = 
 document.querySelector('.city-input');
 const localTime = document.querySelector('.local-time');
+const cityName = document.querySelector('.city-name');
+const temperature = document.querySelector('.temperature');
+const weatherDescription = document.querySelector('.weather-description');
+const feelsLike = document.querySelector('.feels-like');
+const humidity = document.querySelector('.humidity');
+const windSpeed = document.querySelector('.wind-speed');
+const forecastList = document.querySelector('.forecast-list');
+const errorMessage =
+document.querySelector('.error-message');
+
  let clockInterval;
  searchButton.addEventListener('click',async () => {
+ 
   const city = cityInput.value.trim();
   if (!city) {
-  alert('Please enter a city name.');
+  errorMessage.textContent =
+  'please enter a city name.';
   return;
 }
+searchButton.disabled = true;
+searchButton.textContent = 'Searching...';
 
 try {
   const response = await fetch(
     `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
   );
+  if (!response.ok) {
+  throw new Error('unable to search for the city. Please try again later.');
+}
 
 
   const data = await response.json();
   if (!data.results || data.results.length === 0) {
-  alert('City not found. please try another city.');
+   errorMessage.textContent =
+    'City not found. please try another city.';
   return;
 }
 
@@ -31,10 +49,116 @@ const latitude = location.latitude;
 const longitude = location.longitude;
 
 const weatherResponse = await fetch(
-  `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&timezone=auto`
+  `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=5&timezone=auto`
 );
 
 const weatherData = await weatherResponse.json();
+const current = weatherData.current;
+
+// Update the city name
+cityName.textContent =
+  `${location.name}, ${location.country_code}`;
+
+// Display temperature
+temperature.textContent =
+  `${current.temperature_2m}°C`;
+
+// Display feels-like temperature
+feelsLike.textContent =
+  `${current.apparent_temperature}°C`;
+
+// Display humidity
+humidity.textContent =
+  `${current.relative_humidity_2m}%`;
+
+// Display wind speed
+windSpeed.textContent =
+  `${current.wind_speed_10m} km/h`;
+
+// Convert weather code into a description
+const weatherCodes = {
+  0: 'Clear sky',
+  1: 'Mainly clear',
+  2: 'Partly cloudy',
+  3: 'Overcast',
+  45: 'Fog',
+  48: 'Depositing rime fog',
+  51: 'Light drizzle',
+  53: 'Moderate drizzle',
+  55: 'Dense drizzle',
+  61: 'Slight rain',
+  63: 'Moderate rain',
+  65: 'Heavy rain',
+  71: 'Slight snow',
+  73: 'Moderate snow',
+  75: 'Heavy snow',
+  80: 'Slight rain showers',
+  81: 'Moderate rain showers',
+  82: 'Violent rain showers',
+  95: 'Thunderstorm',
+  96: 'Thunderstorm with hail',
+  99: 'Thunderstorm with heavy hail'
+};
+
+weatherDescription.textContent =
+  weatherCodes[current.weather_code] ??
+  'Weather condition unavailable';
+
+const daily = weatherData.daily;
+
+const getWeatherIcon = (code) => {
+  if (code === 0) return '☀️';
+  if (code === 1 || code === 2) return '🌤️';
+  if (code === 3) return '☁️';
+  if (code === 45 || code === 48) return '🌫️';
+  if (code >= 51 && code <= 67) return '🌧️';
+  if (code >= 71 && code <= 77) return '❄️';
+  if (code >= 80 && code <= 82) return '🌦️';
+  if (code >= 95) return '⛈️';
+
+  return '🌡️';
+};
+
+forecastList.innerHTML = '';
+
+daily.time.forEach((date, index) => {
+  const dateParts = date.split('-').map(Number);
+  const forecastDate = new Date(
+    dateParts[0],
+    dateParts[1] - 1,
+    dateParts[2]
+  );
+
+  const day = forecastDate.toLocaleDateString(
+    'en-US',
+    { weekday: 'short' }
+  );
+
+  const icon = getWeatherIcon(
+    daily.weather_code[index]
+  );
+
+  const high = daily.temperature_2m_max[index];
+  const low = daily.temperature_2m_min[index];
+  const rain =
+    daily.precipitation_probability_max[index];
+
+  const card = document.createElement('div');
+  card.className = 'forecast-card';
+
+  card.innerHTML = `
+    <h3>${day}</h3>
+    <p class="forecast-icon">${icon}</p>
+    <p>${weatherCodes[daily.weather_code[index]]
+      ?? 'Unknown conditions'}</p>
+    <p class="forecast-temperature">
+      ${Math.round(high)}°C / ${Math.round(low)}°C
+    </p>
+    <p>🌧️ ${rain ?? 'N/A'}% chance of rain</p>
+  `;
+
+  forecastList.appendChild(card);
+});
 
 
 
@@ -62,25 +186,14 @@ updateLocalTime();
 clearInterval(clockInterval);
 clockInterval =
 setInterval(updateLocalTime, 1000);
-/*
-const time =
-weatherData.current.time;
 
-const [date, clockTime] = time.split('T');
-const [hours, minutes] = clockTime.split(':').map(Number);
 
-const period = hours >= 12 ? 'PM' : 'AM';
-const hour12 = hours % 12 || 12;
-const formattedTime = `${hour12}:${minutes.toString().padStart(2, '0')} ${period}`;
 
-localTime.textContent = `
-Local time: ${formattedTime}
-`;
-*/
-
-console.log(weatherData.current.time);
-console.log(weatherData.timezone)
 } catch (error) {
   console.error('Something went wrong:', error);
+   alert('unable to load weather.please try again later.');
+} finally {
+  searchButton.disabled = false;
+  searchButton.textContent = 'Search';
 }
- })
+ });
