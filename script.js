@@ -12,6 +12,7 @@ const windSpeed = document.querySelector('.wind-speed');
 const forecastList = document.querySelector('.forecast-list');
 const errorMessage =document.querySelector('.error-message');
 const unitToggle = document.querySelector('.unit-toggle');
+const currentWeatherIcon = document.querySelector('.current-weather-icon');
 
  let clockInterval;
  let temperatureUnit = 'C';
@@ -131,6 +132,33 @@ if (!weatherResponse.ok) {
 
 const weatherData = await weatherResponse.json();
 const current = weatherData.current;
+
+const code = current.weather_code;
+
+document.body.classList.remove(
+  'weather-clear',
+  'weather-cloudy',
+  'weather-rainy',
+  'weather-stormy',
+  'weather-snowy',
+  'weather-foggy'
+);
+
+if (code === 0 || code === 1) {
+  document.body.classList.add('weather-clear');
+} else if (code === 2 || code === 3) {
+  document.body.classList.add('weather-cloudy');
+} else if (code === 45 || code === 48) {
+  document.body.classList.add('weather-foggy');
+} else if (code >= 51 && code <= 67 ||
+           code >= 80 && code <= 82) {
+  document.body.classList.add('weather-rainy');
+} else if (code >= 71 && code <= 77) {
+  document.body.classList.add('weather-snowy');
+} else if (code >= 95) {
+  document.body.classList.add('weather-stormy');
+}
+
 currentTemperatureCelsius =
 current.temperature_2m;
 feelsLikeCelsius =
@@ -202,6 +230,8 @@ const getWeatherIcon = (code) => {
 
   return '🌡️';
 };
+currentWeatherIcon.textContent =
+getWeatherIcon(current.weather_code)
 
 forecastList.innerHTML = '';
 
