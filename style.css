@@ -469,3 +469,15 @@ body.weather-foggy {
     radial-gradient(circle at 50% 0%, #64748b 0%, transparent 45%),
     #1e293b;
 }
+
+body.weather-night {
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      #312e81 0%,
+      transparent 45%
+    ),
+    #050816;
+  transition: background 0.6s ease;
+}
+

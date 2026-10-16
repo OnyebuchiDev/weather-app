@@ -133,6 +133,12 @@ if (!weatherResponse.ok) {
 const weatherData = await weatherResponse.json();
 const current = weatherData.current;
 
+if (current.is_day === 0) {
+  document.body.classList.add('weather-night');
+} else {
+  document.body.classList.remove('weather-night');
+}
+
 const code = current.weather_code;
 
 document.body.classList.remove(
