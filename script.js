@@ -10,10 +10,80 @@ const feelsLike = document.querySelector('.feels-like');
 const humidity = document.querySelector('.humidity');
 const windSpeed = document.querySelector('.wind-speed');
 const forecastList = document.querySelector('.forecast-list');
-const errorMessage =
-document.querySelector('.error-message');
+const errorMessage =document.querySelector('.error-message');
+const unitToggle = document.querySelector('.unit-toggle');
 
  let clockInterval;
+ let temperatureUnit = 'C';
+ let currentTemperatureCelsius = null;
+ let feelsLikeCelsius = null;
+
+ function celsiusToFahrenheit(celsius) {
+  return (celsius * 9 / 5) + 32;
+ }
+
+ unitToggle.addEventListener('click', () => {
+  if (currentTemperatureCelsius === null) {
+    return;
+  }
+
+  if (temperatureUnit === 'C') {
+    temperatureUnit = 'F';
+  } else {
+    temperatureUnit = 'C';
+  }
+
+  // Update the button label
+  unitToggle.textContent =
+    temperatureUnit === 'C'
+      ? 'Switch to °F'
+      : 'Switch to °C';
+
+  // Update current temperature
+  const currentTemp =
+    temperatureUnit === 'C'
+      ? currentTemperatureCelsius
+      : celsiusToFahrenheit(currentTemperatureCelsius);
+
+  temperature.textContent =
+    `${Number(currentTemp).toFixed(1)}°${temperatureUnit}`;
+
+  // Update feels-like temperature
+  const feelsTemp =
+    temperatureUnit === 'C'
+      ? feelsLikeCelsius
+      : celsiusToFahrenheit(feelsLikeCelsius);
+
+  feelsLike.textContent =
+    `${Number(feelsTemp).toFixed(1)}°${temperatureUnit}`;
+
+  // Update every forecast card
+  const forecastCards =
+    document.querySelectorAll('.forecast-card');
+
+  forecastCards.forEach(card => {
+    const highC = Number(card.dataset.highCelsius);
+    const lowC = Number(card.dataset.lowCelsius);
+
+    const high =
+      temperatureUnit === 'C'
+        ? highC
+        : celsiusToFahrenheit(highC);
+
+    const low =
+      temperatureUnit === 'C'
+        ? lowC
+        : celsiusToFahrenheit(lowC);
+
+    const forecastTemp =
+      card.querySelector('.forecast-temperature');
+
+    forecastTemp.textContent =
+      `${Math.round(high)}°${temperatureUnit} / ` +
+      `${Math.round(low)}°${temperatureUnit}`;
+  });
+});
+
  searchButton.addEventListener('click',async () => {
  
   const city = cityInput.value.trim();
@@ -22,6 +92,8 @@ document.querySelector('.error-message');
   'please enter a city name.';
   return;
 }
+errorMessage.textContent = '';
+searchButton.textContent = '';
 searchButton.disabled = true;
 searchButton.textContent = 'Searching...';
 
@@ -42,6 +114,7 @@ try {
 }
 
   const location = data.results[0];
+  cityInput.value = '';
   console.log(location.name)
    console.log(location.timezone)
 
@@ -52,8 +125,19 @@ const weatherResponse = await fetch(
   `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=5&timezone=auto`
 );
 
+if (!weatherResponse.ok) {
+  throw new Error('unable to fetch weather data. Please try again later.');
+}
+
 const weatherData = await weatherResponse.json();
 const current = weatherData.current;
+currentTemperatureCelsius =
+current.temperature_2m;
+feelsLikeCelsius =
+current.apparent_temperature;
+
+temperatureUnit = 'C';
+unitToggle.textContent = 'Switch to ℉';
 
 // Update the city name
 cityName.textContent =
@@ -145,6 +229,9 @@ daily.time.forEach((date, index) => {
 
   const card = document.createElement('div');
   card.className = 'forecast-card';
+
+  card.dataset.highCelsius = high;
+  card.dataset.lowCelsius = low;
 
   card.innerHTML = `
     <h3>${day}</h3>
