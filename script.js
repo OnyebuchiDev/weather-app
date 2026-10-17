@@ -14,6 +14,9 @@ const errorMessage =document.querySelector('.error-message');
 const unitToggle = document.querySelector('.unit-toggle');
 const currentWeatherIcon = document.querySelector('.current-weather-icon');
 const locationButton = document.querySelector('.location-button');
+window.addEventListener('load', () => {
+  locationButton.click();
+})
 
  let clockInterval;
  let temperatureUnit = 'C';
