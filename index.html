@@ -2,8 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta name="description" content="Check current weather conditions and 5-day forecast for cities around the world.">
   <title>Weather App</title>
    <link rel="stylesheet" href="style.css">
 </head>
@@ -17,19 +16,26 @@
       <p>Simple, fast and accurate.</p>
     </div>
 
-    <div >
-      <input class="city-input" type="text" placeholder=" &#128269; Enter city name(e.g Lagos, London, New York...)  
-      "> 
-      <button class="search-button">Search</button>
-      <button class="location-button">Use Current Location</button>
-      <button class="voice-button">
-  🎙️    Speak to Weather
-      </button>
+    <div class="search-controls">
+  <div class="search-row">
+    <input
+      class="city-input"
+      type="text"
+      placeholder="🔍 Enter city name (e.g. Lagos, London...)"
+      aria-label="Enter city name"
+    >
+    <button class="search-button" type="button">Search</button>
+  </div>
 
-      <p class="voice-status" aria-live="polite"></p>
-      <p class="error-message"
-      role="alert"></p>
-    </div>
+  <div class="action-row">
+    <button class="location-button" type="button">📍 Use Current Location</button>
+    <button class="voice-button" type="button">🎙️ Speak to Weather</button>
+  </div>
+
+  <p class="voice-status" aria-live="polite"></p>
+  <p class="error-message" role="alert"></p>
+</div>
+
   </header>
 
   <main>
@@ -38,33 +44,34 @@
       <div class="weather-header">
         <h2>Current Weather</h2>
         <button
-         class="unit-toggle">Switch to ℉
+         class="unit-toggle"
+         type="button">Switch to ℉
         </button>
       </div>
       
       <div class="weather-info">
-        <h3 class="city-name">Lagos, NG</h3>
+        <h3 class="city-name">weather not loaded</h3>
         <p class="local-time"></p>
 
         <p class="current-weather-icon">⛅</p>
         <p class="temperature"></p>
-        <p class="weather-description">Waiting for weather data...</p>
+        <p class="weather-description">Search for a city to see its weather.</p>
       </div>
 
       <div class="weather-details">
         <div>
           <p>Feels Like</p>
-          <p class="feels-like">30°C</p>
+          <p class="feels-like">-</p>
         </div>
 
         <div>
           <p>Humidity</p>
-          <p class="humidity">75%</p>
+          <p class="humidity">-</p>
         </div>
 
         <div>
           <p>Wind Speed</p>
-          <p class="wind-speed">12 km/h</p>
+          <p class="wind-speed">-</p>
         </div>
       </div>
     </section>

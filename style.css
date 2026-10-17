@@ -72,39 +72,38 @@ header > div:first-child {
 /* =========================
    3. SEARCH AREA
 ========================= */
-
-header > div:last-child {
-  max-width: 620px;
+.search-controls {
+  width: 100%;
+  max-width: 720px;
   margin: 0 auto;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 12px;
+}
+
+.search-row {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
 }
 
 .city-input {
   flex: 1;
+  width: 0;
   min-width: 0;
-  padding: 16px 18px;
+  padding: 16px;
   border: 1px solid var(--border);
   border-radius: 12px;
   outline: none;
   background: #101e34;
   color: var(--text);
   font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.city-input::placeholder {
-  color: #8293ad;
-}
-
-.city-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
 }
 
 .search-button {
-  padding: 15px 25px;
+  flex-shrink: 0;
+  padding: 15px 24px;
   border: none;
   border-radius: 12px;
   background: var(--primary);
@@ -112,12 +111,10 @@ header > div:last-child {
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
 }
 
 .search-button:hover:not(:disabled) {
   background: var(--primary-hover);
-  transform: translateY(-1px);
 }
 
 .search-button:disabled {
@@ -125,13 +122,72 @@ header > div:last-child {
   cursor: not-allowed;
 }
 
+.action-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.location-button,
+.voice-button {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 10px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.location-button {
+  border: 1px solid var(--border);
+  background: var(--panel-light);
+  color: var(--text);
+}
+
+.voice-button {
+  border: 1px solid var(--border);
+  background: #0f766e;
+  color: white;
+}
+
+.voice-status,
 .error-message {
-  flex-basis: 100%;
-  min-height: 20px;
-  color: #fca5a5;
+  width: 100%;
   text-align: left;
   font-size: 0.9rem;
-  margin-top: 0;
+}
+
+.voice-status {
+  color: var(--muted);
+}
+
+.error-message {
+  color: #fca5a5;
+  min-height: 20px;
+}
+
+@media (max-width: 600px) {
+  .search-row {
+    gap: 8px;
+    flex-direction: column;
+  }
+
+  .search-button {
+    padding: 14px 16px;
+  }
+
+  .action-row {
+    flex-direction: column;
+  }
+
+  .location-button,
+  .voice-button {
+    width: 100%;
+    flex: auto;
+  }
+
+  
 }
 
 /* =========================
@@ -308,9 +364,7 @@ footer {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .forecast-card:nth-child(n + 4) {
-    /* Normal card styling is retained */
-  }
+  
 }
 
 /* =========================
