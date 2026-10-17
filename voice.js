@@ -256,11 +256,9 @@ if (weatherSection) {
       if (!city) return;
 
       // Wait until the displayed city matches the requested city.
-      const displayedCity = normalise(city);
+      const displayedCityName = normalise(city.split(',')[0]);
       const cityMatches =
-        displayedCity.includes(requestedCity) ||
-        requestedCity.includes(displayedCity.split(',')[0]);
-
+        displayedCityName === requestedCity;
       if (cityMatches) {
         sayWeatherReport();
       }
