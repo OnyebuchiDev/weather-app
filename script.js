@@ -185,7 +185,7 @@ feelsLikeCelsius =
 current.apparent_temperature;
 
 temperatureUnit = 'C';
-unitToggle.textContent = 'Switch to ℉';
+unitToggle.textContent = 'Switch to °F';
 
 // Update the city name
 cityName.textContent =
