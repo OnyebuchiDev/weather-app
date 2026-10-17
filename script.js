@@ -16,7 +16,16 @@ const currentWeatherIcon = document.querySelector('.current-weather-icon');
 const locationButton = document.querySelector('.location-button');
 window.addEventListener('load', () => {
   locationButton.click();
-})
+});
+window.addEventListener('offline', () => {
+  errorMessage.textContent =
+    "You're offline. Check your internet connection.";
+});
+
+window.addEventListener('online', () => {
+  errorMessage.textContent =
+    "You're back online! You can search for weather again.";
+});
 
  let clockInterval;
  let temperatureUnit = 'C';
@@ -98,7 +107,6 @@ window.addEventListener('load', () => {
   return;
 }
 errorMessage.textContent = '';
-searchButton.textContent = '';
 searchButton.disabled = true;
 searchButton.textContent = 'Searching...';
 
@@ -119,22 +127,24 @@ try {
 }
 
   const location = data.results[0];
-  cityInput.value = '';
-  console.log(location.name)
-   console.log(location.timezone)
 
 const latitude = location.latitude;
 const longitude = location.longitude;
+const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=5&timezone=auto`;
 
-const weatherResponse = await fetch(
-  `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=5&timezone=auto`
-);
+let weatherResponse = await fetch(weatherUrl);
+
+if (weatherResponse.status === 503 || weatherResponse.status === 502 || weatherResponse.status === 504) {
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  weatherResponse = await fetch(weatherUrl);
+}
 
 if (!weatherResponse.ok) {
-  throw new Error('unable to fetch weather data. Please try again later.');
+  throw new Error('Weather service is temporarily unavailable. Please try again.');
 }
 
 const weatherData = await weatherResponse.json();
+cityInput.value = '';
 const current = weatherData.current;
 
 if (current.is_day === 0) {
@@ -219,7 +229,12 @@ const weatherCodes = {
   82: 'Violent rain showers',
   95: 'Thunderstorm',
   96: 'Thunderstorm with hail',
-  99: 'Thunderstorm with heavy hail'
+  99: 'Thunderstorm with heavy hail',
+  56: 'Light freezing drizzle',
+  57: 'Dense freezing drizzle',
+  66: 'Light freezing rain',
+  67: 'Heavy freezing rain',
+  77: 'Snow grains',
 };
 
 weatherDescription.textContent =
@@ -303,10 +318,6 @@ const updateLocalTime = () => {
   }).format(now);
 
   localTime.textContent = `Local time: ${formattedTime}`;
-
-  console.log('Device time:', new Date().toString());
-  console.log('timeZone:', timezone);
-  console.log('Formatted time:', formattedTime)
 };
 
 updateLocalTime();
@@ -318,7 +329,10 @@ setInterval(updateLocalTime, 1000);
 
 } catch (error) {
   console.error('Something went wrong:', error);
-   alert('unable to load weather.please try again later.');
+   
+  errorMessage.textContent =
+  error.message || 
+  'Unable to load weather.please try again later.';
 } finally {
   searchButton.disabled = false;
   searchButton.textContent = 'Search';
@@ -374,10 +388,10 @@ setInterval(updateLocalTime, 1000);
         searchButton.click();
 
       } catch (error) {
-        console.error('Location error:', error);
+        console.error('Something went wrong:', error);
 
         errorMessage.textContent =
-          'Could not identify your location. Please search for your city instead.';
+          'unable to load weather. please try again later.';
 
         locationButton.disabled = false;
       }
